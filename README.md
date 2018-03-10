@@ -10,3 +10,13 @@ Features, as of March 10, 2018, include :
 I need to work on :
 - validation of forms and files
 - implement sessions: then adding the edit and delete functionnality (i.e. link the published ads to the logged in user)
+
+Entities:
+- User: implements User Interface
+- Advert: manytomany relation with Category
+- Category: manytomany relation with Advert
+- Image: Onetoone relation with Advert
+
+Controllers:
+- UserController : registration/log in
+- AdvertController: create read update delete adverts
