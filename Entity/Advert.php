@@ -5,7 +5,8 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AdvertRepository")
@@ -30,7 +31,7 @@ class Advert
     /**
      * @var string
      * @ORM\Column(name="title", type="string", length=255)
-     * @Assert\Length(min=10)
+     * @Assert\Length(min=4)
      */
     private $title;
 
@@ -66,9 +67,13 @@ class Advert
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Category", cascade={"persist"})
-    */
+     */
     private $categories;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
+     */
+    private $user;
 
     public function __construct()
     {
@@ -79,6 +84,16 @@ class Advert
 
 
     // Getters and Setters
+
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    public function setUser(User $user)
+    {
+        $this->user = $user;
+    }
 
     public function getId()
     {
@@ -123,6 +138,7 @@ class Advert
     public function setPublished($bool){
         $this->published = $bool;
     }
+
     public function setImage(Image $image = null)
     {
         $this->image = $image;
@@ -141,14 +157,13 @@ class Advert
     * @param Category $category
     */
     public function removeCategory(Category $category)
-    {
-        // Using the method from ArrayCollection
+    {    
         $this->categories->removeElement($category);
     }
+    
     /**
      * @return ArrayCollection
      */
-
     public function getCategories()
     {
         return $this->categories;

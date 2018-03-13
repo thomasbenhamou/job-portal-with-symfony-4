@@ -20,17 +20,18 @@ class AdvertType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('title',     TextType::class)
-            ->add('content',   TextareaType::class)
-            ->add('author',    TextType::class)
+            ->add('title', TextType::class)
+            ->add('content',TextareaType::class)
+            ->add('author', TextType::class)
             ->add('image', ImageType::class, array('required' => false))
             ->add('categories', EntityType::class, array(
                     'class'        => 'App:Category',
                     'choice_label' => 'name',
                     'multiple'     => true,
+                    'label' => "Choisissez une ou plusieurs catégories :"
                   ))           
-            ->add('published', CheckboxType::class)
-            ->add('save',      SubmitType::class)
+            ->add('published', CheckboxType::class, array('label' => "Publier l'annonce ?"))
+            ->add('save',      SubmitType::class, array('label' => "Je poste mon offre !"))
         ;
     }
 

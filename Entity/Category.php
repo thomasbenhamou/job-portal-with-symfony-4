@@ -18,9 +18,9 @@ class Category
   
   /**
    * @ORM\Column(name="name", type="string", length=255)
+   *
    */
   private $name;
-
 
   public function getId()
   {
@@ -36,4 +36,5 @@ class Category
   {
     return $this->name;
   }
+
 }

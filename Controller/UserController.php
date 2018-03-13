@@ -3,12 +3,16 @@
 namespace App\Controller;
 
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Response;
+
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use App\Entity\User;
+use App\Entity\Advert;
+
 use App\Form\UserType;
 
 
@@ -23,10 +27,9 @@ class UserController extends Controller
     {
         if ($this->get('security.authorization_checker')->isGranted('IS_AUTHENTICATED_REMEMBERED'))
         {
-          return $this->redirectToRoute('index');
+            return $this->redirectToRoute('index');
         }
 
-        $listCategories = [];
     	    // get the login error if there is one
         $error = $authUtils->getLastAuthenticationError();
 
@@ -36,7 +39,6 @@ class UserController extends Controller
         return $this->render('user/login.html.twig', array(
           'last_username' => $lastUsername,
           'error'         => $error,
-          'listCategories' => $listCategories
     ));
 
     }
@@ -46,7 +48,7 @@ class UserController extends Controller
      */
     public function signup(Request $request, UserPasswordEncoderInterface $passwordEncoder)
     {
-              $listCategories = [];
+      $listCategories = [];
 
       $user = new User();
 
@@ -65,7 +67,8 @@ class UserController extends Controller
           $em = $this->getDoctrine()->getManager();
           $em->persist($user);
           $em->flush();
-
+          
+          $this->addFlash('signedUpNotice',"Vous êtes bien enregistré. Vous pouvez maintenant vous connecter avec votre nom d'utilisateur et votre mot de passe !");
           return $this->redirectToRoute('login');
 
       }
@@ -73,6 +76,22 @@ class UserController extends Controller
         return $this->render('user/signup.html.twig', array(
             'form' => $form->createView(),
             'listCategories' => $listCategories,
+        ));
+
+    }
+    /**
+     * @Route("/myadverts", name="myadverts")
+     */
+    public function getMyAdverts()
+    {
+      $user = $this->getUser();
+      $userId = $user->getId();
+
+      $em = $this->getDoctrine()->getManager();
+      $myAdverts = $em->getRepository(Advert::class)->findBy(['user' => $userId]);
+
+      return $this->render('user/myadverts.html.twig', array(
+            'myAdverts' => $myAdverts
         ));
 
     }

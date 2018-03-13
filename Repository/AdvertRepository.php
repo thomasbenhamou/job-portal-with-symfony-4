@@ -57,4 +57,14 @@ class AdvertRepository extends ServiceEntityRepository
         return $query->execute();
     }
 
+    public function getAdsSearched($search)
+    {
+        $query = $this->_em->createQuery("SELECT a FROM App:Advert a WHERE a.title LIKE :search");
+        $term = '%' . $search . '%';
+        $query->setParameter('search', $term);
+        return $query->getResult();
+    }
+
+
+
 }

@@ -27,23 +27,41 @@ class AdvertController extends Controller
 
         $listAdverts = $em->getRepository(Advert::class)->getAllAds($page, $nbPerPage);
 
-        $listCategories = $em->getRepository(Category::class)->findAll();
-
         $nbPages = ceil(count($listAdverts) / $nbPerPage);
 
-        if ($page > $nbPages)
-        {
-            throw $this->createNotFoundException("Page ".$page." does not exists.");
-        }
+        // if ($page > $nbPages)
+        // {
+        //     throw $this->createNotFoundException("Page ".$page." does not exists.");
+        // }
+
 
         return $this->render('advert/index.html.twig', array(
             'listAdverts' => $listAdverts,
             'nbPages'     => $nbPages,
             'page'        => $page,
-            'listCategories' => $listCategories
             ));
     }
     
+    /**
+     * @Route("/search/", name="search")
+     */
+    public function search(Request $request)
+    {  
+        if ($request->isMethod('POST'))
+        {
+            $search = $request->request->get('search');
+            $em = $this->getDoctrine()->getManager();
+            $listResults = $em->getRepository(Advert::class)->getAdsSearched($search);
+            return $this->render('advert/search_results.html.twig',array(
+                'search' => $search,
+                'listResults' => $listResults,
+            ));
+        }
+        return $this->redirectToRoute('index');
+
+
+    }
+
     /**
      * @Route("/category/{id}", name="category")
      */
@@ -53,20 +71,18 @@ class AdvertController extends Controller
         $em = $this->getDoctrine()->getManager();
 
         $adsByCategory = $em->getRepository(Advert::class)->getAdsByCategory($id);
-        $listCategories = $em->getRepository(Category::class)->findAll();
-
+        $category = $em->getRepository(Category::class)->find($id);
 
         if (!$adsByCategory)
         {
-            throw $this->createNotFoundException(
-            'No category found for id '.$id
-        );
+                $this->addFlash('noads',"Désolé, il n'y a pas encore d'annonces dans cette catégorie");
+                return $this->redirectToRoute('index');
+        
         }
-
 
         return $this->render('advert/category.html.twig', [
             'adsByCategory' => $adsByCategory,
-            'listCategories' => $listCategories
+            'category' => $category
         ]);
 
     }
@@ -74,24 +90,25 @@ class AdvertController extends Controller
     /**
      * @Route("/view/{id}", name="view")
      */
-    public function view($id)
+    public function view(Advert $advert, $id)
     {
        
-        $em = $this->getDoctrine()->getManager();
+    //     Typehint in the function parameters automatically fetches 
+    //     the advert with the corresponding id
 
-        $advert = $em->getRepository(Advert::class)->find($id);
-        $listCategories = $em->getRepository(Category::class)->findAll();
+    //     $em = $this->getDoctrine()->getManager();
+
+    //     $advert = $em->getRepository(Advert::class)->find($id);
 
 
-        if (!$advert) {
-            throw $this->createNotFoundException(
-            'No advert found for id '.$id
-        );
-    }
+    //     if (!$advert) {
+    //         throw $this->createNotFoundException(
+    //         'No advert found for id '.$id
+    //     );
+    // }
 
         return $this->render('advert/view.html.twig', [
             'advert' => $advert,
-            'listCategories' => $listCategories
         ]);
 
     }
@@ -108,6 +125,7 @@ class AdvertController extends Controller
         if (null === $user) {
         
         // Ici, l'utilisateur est anonyme ou l'URL n'est pas derrière un pare-feu
+            $this->addFlash('notConnected', 'Connectez-vous pour publier une annonce, ou inscrivez-vous!');
             return $this->redirectToRoute('login');
 
         } else 
@@ -115,10 +133,10 @@ class AdvertController extends Controller
         {
 
         $em = $this->getDoctrine()->getManager();
-        $listCategories = $em->getRepository(Category::class)->findAll();
 
         // Creating the advert
         $advert = new Advert;
+        $advert->setUser($user);
 
         // Creating the form and passing it the advert
         $form = $this->createForm(AdvertType::class, $advert);
@@ -135,6 +153,8 @@ class AdvertController extends Controller
                 $em->persist($advert);
                 $em->flush();
 
+                $this->addFlash('publishedNotice','Votre annonce a été publiée!');
+
                 return $this->redirectToRoute('view', array(
                     'id' => $advert->getId()
                 ));
@@ -143,7 +163,6 @@ class AdvertController extends Controller
         }
         return $this->render('advert/add.html.twig', array(
             'form' => $form->createView(),
-            'listCategories' => $listCategories
         ));
     }
 
@@ -154,7 +173,6 @@ class AdvertController extends Controller
     public function edit($id, Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-        $listCategories = $em->getRepository(Category::class)->findAll();
 
 
         $advert = $this->getDoctrine()
@@ -182,7 +200,7 @@ class AdvertController extends Controller
                 $em->persist($advert);
                 $em->flush();
 
-                $request->getSession()->getFlashBag()->add('notice', 'Your advert has been published');
+                $this->addFlash('editedNotice', "L'annonce a bien été modifiée !");
 
                 return $this->redirectToRoute('view', array(
                     'id' => $advert->getId()
@@ -196,7 +214,6 @@ class AdvertController extends Controller
 
         return $this->render('advert/edit.html.twig', array(
             'form' => $form->createView(),
-            'listCategories' => $listCategories
         ));
 
     }
@@ -204,24 +221,10 @@ class AdvertController extends Controller
     /**
      * @Route("/delete/{id}", name="delete")
      */
-    public function delete($id, Request $request)
+    public function delete(Advert $advert, Request $request)
     {
         
         $em = $this->getDoctrine()->getManager();
-        $listCategories = $em->getRepository(Category::class)->findAll();
-
-        $advert = $this->getDoctrine()
-            ->getManager()
-            ->getRepository(Advert::class)
-            ->find($id)
-        ;
-
-        if (!$advert) 
-        {
-            throw $this->createNotFoundException(
-                'No advert found for id '.$id
-            );
-        }
 
         // On crée un formulaire vide, qui ne contiendra que le champ CSRF
         // Cela permet de protéger la suppression d'annonce contre cette faille
@@ -233,14 +236,13 @@ class AdvertController extends Controller
             $em->flush();
 
             $request->getSession()->getFlashBag()->add('info', "L'annonce a bien été supprimée.");
-
-            return $this->redirectToRoute('index');
+            $this->addFlash('deleteNotice', "L'annonce a bien été supprimée !");
+            return $this->redirectToRoute('myadverts');
         }
     
         return $this->render('advert/delete.html.twig', array(
             'advert' => $advert,
             'form'   => $form->createView(),
-            'listCategories' => $listCategories
         ));
 
     }
