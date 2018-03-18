@@ -27,6 +27,7 @@ class UserController extends Controller
     {
         if ($this->get('security.authorization_checker')->isGranted('IS_AUTHENTICATED_REMEMBERED'))
         {
+            $this->addFlash("alreadylogged","vous êtes déjà connecté !");
             return $this->redirectToRoute('index');
         }
 

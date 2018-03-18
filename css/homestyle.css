@@ -1,0 +1,40 @@
+body {
+	font-family: 'Open Sans', sans-serif;
+	background: url("../img/home_background.jpg");
+	background-size: cover;	
+}
+
+.mainlink {
+	color: rgb(229,229,229);
+	font-size: 1.5em;
+
+}
+
+.mainlink:hover, .mainlink:visited {
+	color: rgba(229,229,229, 0.5);
+	text-decoration: none;
+}
+
+.wj-home-search {
+	width: 70vw !important;
+	height: 8vh;
+	border-top-right-radius: 0px;
+	border-bottom-right-radius: 0px;
+}
+
+.wj-search-btn {
+	border-bottom-left-radius: 0px;
+	border-top-left-radius: 0px;
+	height: 8vh;
+	width: 7vw;
+}
+.wj-search-btn {
+	border-bottom-left-radius: 0px;
+	border-top-left-radius: 0px;
+}
+
+
+.wj-welcome-jumbotron {
+	background: rgba(48,85,113, 0.95);
+	color: rgb(229,229,229);
+}

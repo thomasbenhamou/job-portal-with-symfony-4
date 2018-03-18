@@ -37,6 +37,23 @@ class Advert
 
     /**
      * @var string
+     * @ORM\Column(name="location", type="string", length=255)
+     * @Assert\Length(min=4)
+     */
+    private $location;
+
+    /**
+     * @ORM\Column(name="lat", type="string", nullable=true)
+     */
+    private $lat;
+
+    /**
+     * @ORM\Column(name="lng", type="string", nullable=true)
+     */
+    private $lng;
+
+    /**
+     * @var string
      * @ORM\Column(name="author", type="string", length=255)
      * @Assert\Length(min=2)
      */
@@ -50,10 +67,13 @@ class Advert
     private $content;
 
     /**
-     * @var bool
-     * @ORM\Column(name="published", type="boolean", nullable=true)
-     */
-    private $published = true;
+     * @var string
+     * @ORM\Column(name="email", type="string", length=32)
+     * @Assert\Email(
+     *    message = "L'email '{{ value }}' n'est pas valide.",
+     *    checkMX = true)
+     */ 
+    private $email ="exemple@exemple.com";
 
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\Image", cascade={"persist", "remove"})
@@ -67,6 +87,11 @@ class Advert
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Category", cascade={"persist"})
+     * @var \Doctrine\Common\Collections\Collection|categories[]
+     * @ORM\JoinTable(name="advert_categories",
+     *      joinColumns={@ORM\JoinColumn(name="advert_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="category_id", referencedColumnName="id")}
+     *      )
      */
     private $categories;
 
@@ -115,6 +140,32 @@ class Advert
     {
         $this->title = $title;
     }
+    public function getLocation()
+    {
+        return $this->location;
+    }
+    public function setLocation($location)
+    {
+        $this->location = $location;
+    }
+
+    public function getLat()
+    {
+        return $this->lat;
+    }
+    public function setLat($lat)
+    {
+        $this->lat = $lat;
+    }
+        public function getLng()
+    {
+        return $this->lng;
+    }
+    public function setLng($lng)
+    {
+        $this->lng = $lng;
+    }
+
     public function getAuthor()
     {
         return $this->author;
@@ -123,6 +174,14 @@ class Advert
     {
         $this->author = $author;
     }
+    public function getEmail()
+    {
+        return $this->email;
+    }
+    public function setEmail($email)
+    {
+        $this->email = $email;
+    }
     public function getContent()
     {
         return $this->content;
@@ -130,13 +189,6 @@ class Advert
     public function setContent($content)
     {
         $this->content = $content;
-    }
-    public function getPublished()
-    {
-        return $this->published;
-    }
-    public function setPublished($bool){
-        $this->published = $bool;
     }
 
     public function setImage(Image $image = null)
@@ -159,6 +211,11 @@ class Advert
     public function removeCategory(Category $category)
     {    
         $this->categories->removeElement($category);
+    }
+
+    public function removeAllCategories()
+    {
+        $this->categories = null; 
     }
     
     /**

@@ -22,6 +22,7 @@ class AdvertType extends AbstractType
         $builder
             ->add('title', TextType::class)
             ->add('content',TextareaType::class)
+            ->add('location', TextType::class)
             ->add('author', TextType::class)
             ->add('image', ImageType::class, array('required' => false))
             ->add('categories', EntityType::class, array(
@@ -30,7 +31,7 @@ class AdvertType extends AbstractType
                     'multiple'     => true,
                     'label' => "Choisissez une ou plusieurs catégories :"
                   ))           
-            ->add('published', CheckboxType::class, array('label' => "Publier l'annonce ?"))
+            ->add('email', TextType::class)
             ->add('save',      SubmitType::class, array('label' => "Je poste mon offre !"))
         ;
     }

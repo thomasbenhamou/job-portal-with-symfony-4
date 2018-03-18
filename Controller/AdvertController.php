@@ -14,6 +14,22 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AdvertController extends Controller
 {
+    
+    /**
+     * @Route("/", name="home")
+     *         
+     */
+    public function home()
+    {
+
+        $em = $this->getDoctrine()->getManager();
+        $listCategories = $em->getRepository(Category::class)->findAll();
+        return $this->render('advert/home.html.twig', array(
+            'listCategories' => $listCategories
+        ));
+    }
+
+
     /**
      * @Route("/index/{page}", name="index")
      *         
@@ -26,7 +42,7 @@ class AdvertController extends Controller
         $em = $this->getDoctrine()->getManager();
 
         $listAdverts = $em->getRepository(Advert::class)->getAllAds($page, $nbPerPage);
-
+        $listCategories = $em->getRepository(Category::class)->findAll();
         $nbPages = ceil(count($listAdverts) / $nbPerPage);
 
         // if ($page > $nbPages)
@@ -39,6 +55,7 @@ class AdvertController extends Controller
             'listAdverts' => $listAdverts,
             'nbPages'     => $nbPages,
             'page'        => $page,
+            'listCategories' => $listCategories
             ));
     }
     
@@ -51,10 +68,13 @@ class AdvertController extends Controller
         {
             $search = $request->request->get('search');
             $em = $this->getDoctrine()->getManager();
-            $listResults = $em->getRepository(Advert::class)->getAdsSearched($search);
+            $listResults = $em->getRepository(Advert::class)->searchAdvert($search);
+            $listCategories = $em->getRepository(Category::class)->findAll();
+
             return $this->render('advert/search_results.html.twig',array(
                 'search' => $search,
                 'listResults' => $listResults,
+                'listCategories' => $listCategories
             ));
         }
         return $this->redirectToRoute('index');
@@ -72,7 +92,7 @@ class AdvertController extends Controller
 
         $adsByCategory = $em->getRepository(Advert::class)->getAdsByCategory($id);
         $category = $em->getRepository(Category::class)->find($id);
-
+        $listCategories = $em->getRepository(Category::class)->findAll();
         if (!$adsByCategory)
         {
                 $this->addFlash('noads',"Désolé, il n'y a pas encore d'annonces dans cette catégorie");
@@ -82,7 +102,8 @@ class AdvertController extends Controller
 
         return $this->render('advert/category.html.twig', [
             'adsByCategory' => $adsByCategory,
-            'category' => $category
+            'category' => $category,
+            'listCategories' => $listCategories
         ]);
 
     }
@@ -144,6 +165,16 @@ class AdvertController extends Controller
         if ($request->isMethod('POST'))
         {
             $form->handleRequest($request);
+
+            // geocoding the advert
+            $location = str_replace(' ','%20', $advert->getLocation());
+            $url = "https://maps.googleapis.com/maps/api/geocode/json?address=" .$location. "&key=AIzaSyDhWFiE-qVz9UIza9gmVW7z-_uGx2ONIkQ";
+            $geocode=file_get_contents($url, true);
+            $output= json_decode($geocode);
+            $lat = $output->results[0]->geometry->location->lat;
+            $lng = $output->results[0]->geometry->location->lng;
+            $advert->setLat($lat);
+            $advert->setLng($lng);
 
             if ($form->isValid())
             {

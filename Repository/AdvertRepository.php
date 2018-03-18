@@ -65,6 +65,16 @@ class AdvertRepository extends ServiceEntityRepository
         return $query->getResult();
     }
 
+    public function searchAdvert($search)
+    {
+        $query= $this->createQueryBuilder('a')
+        ->andWhere('a.title LIKE :search OR a.author LIKE :search OR a.content LIKE :search OR a.location LIKE :search')
+        ->setParameter('search', '%'.$search.'%')
+        ->getQuery()
+        ;
+        return $query->execute();
+    }
+
 
 
 }

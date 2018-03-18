@@ -1,0 +1,63 @@
+body {
+	color: rgb(78,78,78);
+}
+
+.ad-content {
+	font-size: 0.9rem;
+}
+
+a {
+	color: black;
+	text-decoration: none;
+}
+
+a:hover {
+	color: rgb(70,70,70);
+	text-decoration: none;
+}
+
+.btn-sm {
+	font-size: 0.8rem;
+}
+
+
+
+
+/*MAIN PAGE*/
+
+.wj-nav-search {
+	width: 45vw !important;
+	border-top-right-radius: 0px;
+	border-bottom-right-radius: 0px;
+}
+
+.wj-navbar {
+	background: rgb(48,85,113);
+	color: rgb(248,241,233);
+
+}
+
+.wj-search-btn {
+	border-bottom-left-radius: 0px;
+	border-top-left-radius: 0px;
+}
+
+.wj-jumbotron {
+	background: rgb(229,229,229);
+	color: rgb(78,78,78);
+
+}
+
+.wj-welcome-jumbotron {
+	background: rgb(48,85,113);
+	color: rgb(229,229,229);
+}
+
+.wj-ad-title {
+	color: rgb(48,85,113);
+	font-weight: bold;
+}
+
+#map {
+	height: 80vh;
+}

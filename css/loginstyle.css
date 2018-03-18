@@ -1,0 +1,9 @@
+body {
+	font-family: 'Open Sans', sans-serif;
+	background: url("../img/home_background.jpg");
+	background-size: cover;
+}
+
+.container {
+	opacity: 0.95;
+}

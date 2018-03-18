@@ -1,0 +1,15 @@
+home:
+    path: /
+    defaults:
+        _controller: App\Controller\AdvertController::home
+
+login:
+    path: /login
+    defaults:
+        _controller: App\Controller\UserController::login
+
+login_check:
+    path: /login_check
+
+logout:
+    path: /logout
